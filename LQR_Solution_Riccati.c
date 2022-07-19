@@ -27,6 +27,7 @@ int main(){
     int    IsResult                             = 0;
 
     double  K[SIZE]                             = {0};
+    int     CalTimes                            = 0;  //实际迭代次数
 
     //计算A的转置
     for(int i = 0;i < SIZE;i++){
@@ -54,17 +55,7 @@ int main(){
         double RBTPBINVERSE[SIZE_][SIZE_]           = {0};
         double ATPBRBTPBINVERSE[SIZE]               = {0};
         double ATPBRBTPBINVERSEBTPA[SIZE][SIZE]     = {0};
-      
 
-        printf("矩阵P的结果：\n");
-        for(int i = 0;i < SIZE;++i)
-        {
-            for(int j = 0;j < SIZE;++j)
-            {
-                printf("%2.4f    ",P[i][j]);
-            }
-            printf("\n");
-        }
         
         //计算A'*P
         for(int i = 0;i < SIZE;i++){
@@ -74,15 +65,7 @@ int main(){
                 }
             }
         }
-        printf("矩阵AT的结果：\n");
-        for(int i = 0;i < SIZE;++i)
-        {
-            for(int j = 0;j < SIZE;++j)
-            {
-                printf("%2.4f    ",AT[i][j]);
-            }
-            printf("\n");
-        }
+      
         //计算A'*P*A
         for(int i = 0;i < SIZE;i++){
             for(int j = 0;j < SIZE;j++){
@@ -92,16 +75,6 @@ int main(){
             }
         }
 
-        printf("矩阵A'PA的结果：\n");
-        for(int i = 0;i < SIZE;++i)
-        {
-            for(int j = 0;j < SIZE;++j)
-            {
-                printf("%2.4f    ",ATPA[i][j]);
-            }
-            printf("\n");
-        }
-
         //计算A'*P*B
         for(int i = 0;i < SIZE;i++){
                 for(int k = 0;k < SIZE;k++){
@@ -109,14 +82,6 @@ int main(){
                 }
         }
         
-        printf("矩阵A'PB的结果：\n");
-        for(int i = 0;i < SIZE;++i)
-        {
-  
-            printf("%2.4f    ",ATPB[i]);
-            printf("\n");
-        }
-
         //计算B'*P
         for(int i = 0;i < SIZE;i++){
                 for(int k = 0;k < SIZE;k++){
@@ -131,36 +96,16 @@ int main(){
                 }
         }
 
-        printf("矩阵B'PA的结果：\n");
-        for(int i = 0;i < SIZE;++i)
-        {
-            printf("%2.4f    ",BTPA[i]);
-            printf("\n");
-        }
-
         //计算B'*P*B
         for(int i = 0; i < SIZE; i++){
            BTPB += BTP[i] * B[i];  
         }
-
-        printf("矩阵B'PB的结果：\n");
-        printf("%2.4f    ",BTPB);
-        printf("\n");
 
         //计算R+B'*P*B
         for(int i = 0;i < SIZE_;i++){
             for(int j = 0;j < SIZE_;j++){
                 RBTPB[i][j] += R_C[i][j] + BTPB; 
             }
-        }
-        printf("矩阵R+B'*P*B的结果：\n");
-        for(int i = 0;i < SIZE_;++i)
-        {
-            for(int j = 0;j < SIZE_;++j)
-            {
-                printf("%2.4f    ",RBTPB[i][j]);
-            }
-            printf("\n");
         }
       
         /******************************************开始计算(R+B'*P*B)^(-1)********************************************************/
@@ -256,15 +201,6 @@ int main(){
             }
         }
 
-        //打印
-        printf("矩阵(R+B'*P*B)^(-1)的结果：\n");
-        for(int i = 0;i < SIZE_;i++){
-            for(int j = 0;j < SIZE_;++j){
-                printf("%2.4f    ",RBTPBINVERSE[i][j]);
-            }
-            printf("\n");
-        }
-
         /****************************************************************结束(R+B'*P*B)^(-1)求解********************************************/
         
         //计算A'*P*B*(R+B'*P*B)^(-1)
@@ -272,11 +208,6 @@ int main(){
             for(int k = 0;k < SIZE_;k++){
                 ATPBRBTPBINVERSE[i] += ATPB[i] * RBTPBINVERSE[k][0];
             }
-        }
-        printf("矩阵A'*P*B*(R+B'*P*B)^(-1)的结果：\n");
-        for(int i = 0;i < SIZE;i++){
-            printf("%2.4f    ",ATPBRBTPBINVERSE[i]);
-            printf("\n");
         }
 
         //计算A'*P*B*(R+B'*P*B)^(-1)*B'*P*A
@@ -286,16 +217,6 @@ int main(){
             }
             
         }
-        
-        printf("矩阵A'*P*B*(R+B'*P*B)^(-1)*B'*P*A的结果：\n");
-        
-        for(int i = 0;i < SIZE;i++){
-            for(int j = 0;j < SIZE;++j){
-                printf("%2.4f    ", ATPBRBTPBINVERSEBTPA[i][j]);
-            }
-            printf("\n");
-        }
-
 
         /*P_next = A'.*P.*A-A'.*P.*B.*(R+B'.*P.*B)^(-1).*B'.*P.*A+Q*/
         for(int i = 0;i< SIZE;i++){
@@ -304,16 +225,7 @@ int main(){
             }
         }
 
-        printf("矩阵P_next的结果：\n");
-        for(int i = 0;i < SIZE;i++){
-            for(int j = 0;j < SIZE;++j){
-                printf("%2.4f    ", P_next[i][j]);
-            }
-            printf("\n");
-        }
-
         //判断是否收敛
-        /*
         double P_maxCoeff = 0;
         double P_max[SIZE][SIZE] = {0};
 
@@ -326,11 +238,10 @@ int main(){
         for(int i = 0;i < SIZE;i++){
             for(int j = 0;j < SIZE;j++){
                 if(P_max[i][j]>P_maxCoeff)
-                    P_maxCoeff = P[i][j];
+                    P_maxCoeff = P_max[i][j];
             }
         }
-        */
-
+        
         /*
         for(int i = 0;i < SIZE;i++){
             for(int j = 0;j < SIZE;j++){
@@ -391,8 +302,8 @@ int main(){
                 break;
             }
         }
-         */
-        /*
+        */
+
         if(P_maxCoeff < tolerance){
                 //将P_Next赋值给P_Result
                 for(int i = 0;i < SIZE;i++){
@@ -403,14 +314,13 @@ int main(){
                 IsResult = 1;
                 break;
         }
-        */
         //将P_Next赋值给P_Result
         for(int i = 0;i < SIZE;i++){
             for(int j = 0;j < SIZE;j++){
                 P_Result[i][j] = P_next[i][j];
             }
         }
-        IsResult = 1;
+
         //将P_Next赋值给P
         for(int i = 0;i < SIZE;i++){
             for(int j = 0;j < SIZE;j++){
@@ -418,11 +328,13 @@ int main(){
             }
         }
 
-         /***K = RBTPBINVERSE[k][0]**/
+         /***K = (R+B'PB)^(-1)*B'P*A **/
         for(int i = 0;i < SIZE;i++){
             K[i] =  RBTPBINVERSE[0][0] * BTPA[i];
         }
+        CalTimes++;
     } 
+
     if(IsResult == 1){
             printf("矩阵P_Result的结果：\n");
             for(int i = 0;i < SIZE;i++){
@@ -431,17 +343,18 @@ int main(){
                 }
                 printf("\n");
             }
-    } else {
-         printf("对不起矩阵P_Result的结果为空！");
-    }
-    printf("控制率矩阵的结果：\n");
-    for(int i = 0;i < SIZE;i++){
-        printf("%2.4f    ", K[i]);
-        printf("\n");
-    }
+        
+            printf("控制率矩阵K的结果：\n");
+            for(int i = 0;i < SIZE;i++){
+                printf("%2.4f    ", K[i]);
+                printf("\n");
+            }
 
+            printf("离散立卡提方程迭代次数为：%d",CalTimes);
+            printf("\n");
+
+    } else {
+            printf("对不起矩阵P_Result的结果为空！");
+    }
 
 }
-
-
-
